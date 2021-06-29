@@ -1,54 +1,44 @@
 {
-  "name": "git-ssh-key",
+  "name": "git-ssh-key-nobuild",
   "description": "Setup ssh private keys for git from environment variables",
   "version": "1.1.0",
-  "main": "dist/index.js",
+  "main": "src/index.js",
   "license": "MIT",
+  "type": "module",
   "files": [
-    "dist/"
+    "src/"
   ],
   "bin": {
-    "git-ssh-key": "./dist/index.js"
+    "git-ssh-key-nobuild": "./src/index.js"
   },
   "scripts": {
-    "build": "cosmo build",
-    "test": "cosmo test",
-    "start": "cosmo start",
-    "format": "cosmo format",
-    "lint": "cosmo lint",
-    "release": "cosmo release",
-    "flow": "flow",
-    "flowtyped": "flow-typed",
-    "precommit": "lint-staged",
-    "prepare": "npm run build"
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "start": "node src/index.js",
+    "lint": "eslint ./src/**",
+    "prepare": "husky install",
+    "pre-commit": "lint-staged"
   },
   "lint-staged": {
     "*.js": [
-      "cosmo format -f",
-      "cosmo lint -f",
-      "git add"
+      "eslint"
     ]
-  },
-  "eslintConfig": {
-    "extends": "cosmo"
   },
   "author": {
     "name": "Siddharth Doshi",
     "email": "sidoshi510@gmail.com",
     "url": "https://sid.sh"
   },
-  "repository": "https://github.com/doshisid/git-ssh-key",
+  "repository": "https://github.com/virtualcodewarrior/git-ssh-key-nobuild",
   "dependencies": {
-    "@babel/runtime": "^7.14.6",
     "chalk": "^4.1.1",
     "dotenv": "^10.0.0",
     "fs-extra": "^10.0.0"
   },
   "devDependencies": {
-    "cosmo-cli": "^0.1.10",
-    "flow-bin": "^0.154.0",
-    "flow-typed": "^3.3.1",
-    "husky": "^0.14.3",
+    "eslint": "^7.29.0",
+    "eslint-plugin-jest": "^24.3.6",
+    "husky": "^6.0.0",
+    "jest": "^27.0.6",
     "lint-staged": "^11.0.0"
   }
 }

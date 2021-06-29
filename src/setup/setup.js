@@ -1,14 +1,10 @@
-import path from 'path'
-import fs from 'fs-extra'
+import path from 'path';
+import fs from 'fs-extra';
 
-import { delimeter } from '../utils'
-import paths from '../paths'
+import { delimeter } from '../utils.js';
+import paths from '../paths.js';
 
-type PrivateKey = string
-type Host = string
-type Port = number
-
-export const buildConfig = (host: Host, identityFile: string, port: Port = 22) => `
+export const buildConfig = (host, identityFile, port = 22) => `
 ${delimeter}
 Host ${host}
   IdentitiesOnly yes
@@ -17,27 +13,27 @@ Host ${host}
   IdentityFile ${identityFile}
   Port ${port}
 ${delimeter}
-`
+`;
 
-export const getPrivateKeyFilePath = (host: Host) =>
-  path.resolve(paths.keysDir, `${host.replace(/\./g, '_')}_key`)
+export const getPrivateKeyFilePath = (host) =>
+	path.resolve(paths.keysDir, `${host.replace(/\./g, '_')}_key`);
 
-export const appendConfigFile = (host: Host, port: Port) =>
-  fs.appendFileSync(
-    paths.configFile,
-    buildConfig(host, getPrivateKeyFilePath(host), port)
-  )
+export const appendConfigFile = (host, port) =>
+	fs.appendFileSync(
+		paths.configFile,
+		buildConfig(host, getPrivateKeyFilePath(host), port),
+	);
 
-export const createKeyFile = (host: string, key: string) => {
-  fs.ensureDirSync(paths.keysDir)
-  const privateKeyFilePath = getPrivateKeyFilePath(host)
+export const createKeyFile = (host, key) => {
+	fs.ensureDirSync(paths.keysDir);
+	const privateKeyFilePath = getPrivateKeyFilePath(host);
 
-  fs.writeFileSync(privateKeyFilePath, key)
-  fs.chmodSync(privateKeyFilePath, '600')
-}
+	fs.writeFileSync(privateKeyFilePath, key);
+	fs.chmodSync(privateKeyFilePath, '600');
+};
 
-export default (tuples: [Host, PrivateKey, port][]) =>
-    tuples.forEach(([host, key, port]) => {
-    createKeyFile(host, key)
-    appendConfigFile(host, port)
-  })
+export default(tuples) =>
+	tuples.forEach(([host, key, port]) => {
+		createKeyFile(host, key);
+		appendConfigFile(host, port);
+	});

@@ -1,3 +1,7 @@
 #!/usr/bin/env node
-require('dotenv').config()
-require('./cli').default(process.argv)
+import dotenv from 'dotenv';
+import cli from './cli.js';
+
+dotenv.config();
+cli(process.argv);
+

@@ -1,8 +1,8 @@
-import setup from './setup'
-import { cleanup, base64Decode } from '../utils'
+import setup from './setup.js';
+import { cleanup, base64Decode } from '../utils.js';
 
 const keyNotFoundMessage = () =>
-  `
+	`
 Private keys not found.
 
 You must set private keys in appropriate environment variables, either manually
@@ -17,7 +17,7 @@ For eg:-
 GIT_SSH_KEY_GITHUB
 GIT_SSH_KEY_BITBUCKET
 GIT_SSH_KEY_GITLAB
- `
+ `;
 
 const hostNotFoundMessage = (keyName, hostName) => `
 Host url not found for corresponding private key: ${keyName}
@@ -41,59 +41,61 @@ For eg:-
 GIT_SSH_HOST_COMPANY_GITLAB
 GIT_SSH_HOST_GITHUB
 GIT_SSH_HOST_BITBUCKET
-`
+`;
 
-export const getKeyNames = (envs: Object) =>
-  Object.keys(envs).filter(key => key.match(/GIT_SSH_KEY_.+/))
+export const getKeyNames = (envs) =>
+	Object.keys(envs).filter((key) => key.match(/GIT_SSH_KEY_.+/));
 
-export const getHosts = (envs: Object) => ({
-  GIT_SSH_HOST_GITHUB: 'github.com',
-  GIT_SSH_HOST_BITBUCKET: 'bitbucket.org',
-  GIT_SSH_HOST_GITLAB: 'gitlab.com',
-  ...Object.keys(envs).reduce(
-    (acc, curr) =>
-      curr.match(/GIT_SSH_HOST_.+/) ? { ...acc, [curr]: envs[curr] } : acc,
-    {}
-  ),
-})
-
-export const getPorts = (env: Object) => ({
-  GIT_SSH_PORT_GITHUB: 22,
-  GIT_SSH_PORT_BITBUCKET: 22,
-  GIT_SSH_PORT_GITLAB: 22,
-  ...Object.keys(envs).reduce(
-      (acc, curr) =>
-          curr.match(/GIT_SSH_PORT_.+/) ? { ...acc, [curr]: envs[curr] } : acc,
-      {}
-  ),
+export const getHosts = (envs) => ({
+	GIT_SSH_HOST_GITHUB: 'github.com',
+	GIT_SSH_HOST_BITBUCKET: 'bitbucket.org',
+	GIT_SSH_HOST_GITLAB: 'gitlab.com',
+	...Object.keys(envs).reduce(
+		(acc, curr) =>
+			(curr.match(/GIT_SSH_HOST_.+/) ? { ...acc, [curr]: envs[curr] } : acc),
+		{},
+	),
 });
 
-export default (envs: Object) => {
-  cleanup()
+export const getPorts = (envs) => ({
+	GIT_SSH_PORT_GITHUB: 22,
+	GIT_SSH_PORT_BITBUCKET: 22,
+	GIT_SSH_PORT_GITLAB: 22,
+	...Object.keys(envs).reduce(
+		(acc, curr) =>
+			(curr.match(/GIT_SSH_PORT_.+/) ? { ...acc, [curr]: envs[curr] } : acc),
+		{},
+	),
+});
 
-  const keyNames = getKeyNames(envs)
-  if (keyNames.length === 0) {
-    console.log(keyNotFoundMessage())
-    process.exit()
-  }
+export default(envs) => {
+	cleanup();
 
-  const hosts = getHosts(envs)
-  const ports = getPorts(envs)
+	const keyNames = getKeyNames(envs);
+	if (keyNames.length === 0) {
+		// eslint-disable-next-line no-console
+		console.log(keyNotFoundMessage());
+		process.exit();
+	}
 
-  const tuples = keyNames.map(keyName => {
-    const privateKey = base64Decode(envs[keyName])
+	const hosts = getHosts(envs);
+	const ports = getPorts(envs);
 
-    const hostName = keyName.replace('GIT_SSH_KEY', 'GIT_SSH_HOST')
-    const portName = keyName.replace('GIT_SSH_KEY', 'GIT_SSH_PORT')
-    const host = hosts[hostName]
-    const port = ports[portName]
-    if (!host) {
-      console.log(hostNotFoundMessage(keyName, hostName))
-      process.exit(1)
-    }
+	const tuples = keyNames.map((keyName) => {
+		const privateKey = base64Decode(envs[keyName]);
 
-    return [host, privateKey, port]
-  })
+		const hostName = keyName.replace('GIT_SSH_KEY', 'GIT_SSH_HOST');
+		const portName = keyName.replace('GIT_SSH_KEY', 'GIT_SSH_PORT');
+		const host = hosts[hostName];
+		const port = ports[portName];
+		if (!host) {
+			// eslint-disable-next-line no-console
+			console.log(hostNotFoundMessage(keyName, hostName));
+			process.exit(1);
+		}
 
-  setup(tuples)
-}
+		return [host, privateKey, port];
+	});
+
+	setup(tuples);
+};
