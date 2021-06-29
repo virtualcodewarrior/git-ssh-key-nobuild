@@ -29,10 +29,12 @@ or in a '.env' file.
 git-ssh-key reads host urls from environment variables matching pattern:
 
 GIT_SSH_HOST_XXXX
+GIT_SSH_PORT_XXXX
 
 You dont need to provide host urls for a few popular git services like:
 Github, Gitlab and Bitbucket. Though If you do provide host urls for those 
 services, it will override the default values.
+You don't need to provide port if the port number is the standard port 22 for ssh.
 
 For eg:-
 
@@ -55,6 +57,17 @@ export const getHosts = (envs: Object) => ({
   ),
 })
 
+export const getPorts = (env: Object) => ({
+  GIT_SSH_PORT_GITHUB: 22,
+  GIT_SSH_PORT_BITBUCKET: 22,
+  GIT_SSH_PORT_GITLAB: 22,
+  ...Object.keys(envs).reduce(
+      (acc, curr) =>
+          curr.match(/GIT_SSH_PORT_.+/) ? { ...acc, [curr]: envs[curr] } : acc,
+      {}
+  ),
+});
+
 export default (envs: Object) => {
   cleanup()
 
@@ -65,19 +78,22 @@ export default (envs: Object) => {
   }
 
   const hosts = getHosts(envs)
+  const ports = getPorts(envs)
 
-  const pairs = keyNames.map(keyName => {
+  const tuples = keyNames.map(keyName => {
     const privateKey = base64Decode(envs[keyName])
 
     const hostName = keyName.replace('GIT_SSH_KEY', 'GIT_SSH_HOST')
+    const portName = keyName.replace('GIT_SSH_KEY', 'GIT_SSH_PORT')
     const host = hosts[hostName]
+    const port = ports[portName]
     if (!host) {
       console.log(hostNotFoundMessage(keyName, hostName))
       process.exit(1)
     }
 
-    return [host, privateKey]
+    return [host, privateKey, port]
   })
 
-  setup(pairs)
+  setup(tuples)
 }
