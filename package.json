@@ -19,7 +19,8 @@
     "release": "cosmo release",
     "flow": "flow",
     "flowtyped": "flow-typed",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "prepare": "npm run build"
   },
   "lint-staged": {
     "*.js": [
